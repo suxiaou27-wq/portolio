@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI应用实践作品集｜把真实业务问题变成可落地的AI方案</title>
+<meta name="description" content="AI应用实践作品集，展示 AI Agent、知识库设计、业务分析、风险控制与 AI 应用落地案例。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=PT+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#020202;
+  --bg2:#0a0a0a;
+  --text:#f1f1f1;
+  --muted:#8a8a8a;
+  --faint:#5a5a5a;
+  --border:rgba(241,241,241,.14);
+  --border-soft:rgba(241,241,241,.07);
+  --border-dash:rgba(241,241,241,.28);
+  --sans:"Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"Fragment Mono","SF Mono","Menlo",Consolas,monospace;
+  --serif:"PT Serif","Songti SC","SimSun",serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--text);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+.bg-fade{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(720px 480px at 78% -8%,rgba(241,241,241,.06),transparent 62%),
+    radial-gradient(600px 420px at -12% 42%,rgba(241,241,241,.04),transparent 60%),
+    var(--bg);
+}
+
+nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(2,2,2,.78);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border-soft);
+}
+.nav-inner{
+  max-width:1240px;margin:0 auto;padding:0 28px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.brand{display:flex;align-items:baseline;gap:10px;font-size:14px;font-weight:600;letter-spacing:.06em}
+.brand .b1{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.14em}
+.nav-links{display:flex;gap:2px;font-size:13px}
+.nav-links a{display:flex;align-items:center;gap:7px;padding:8px 14px;color:var(--muted);border-radius:6px;transition:.2s}
+.nav-links a .n{font-family:var(--mono);font-size:10px;opacity:.6}
+.nav-links a:hover{color:var(--text);background:rgba(241,241,241,.06)}
+.nav-links a.active{color:var(--text)}
+.nav-links a.active .n{color:var(--text)}
+.nav-cta{
+  font-size:12px;font-weight:600;color:var(--bg);background:var(--text);
+  height:34px;padding:0 18px;border-radius:6px;display:inline-flex;align-items:center;transition:.25s;
+}
+.nav-cta:hover{opacity:.8}
+
+.hero{
+  max-width:1240px;margin:0 auto;padding:clamp(80px,13vh,150px) 28px 60px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+}
+.identity{
+  font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--muted);
+  display:flex;align-items:center;gap:16px;margin-bottom:32px;
+}
+.identity::before,.identity::after{content:"";width:34px;height:1px;background:var(--border)}
+.h1{
+  font-size:clamp(38px,6.4vw,88px);
+  font-weight:500;line-height:1.06;letter-spacing:-.015em;
+}
+.h1 .thin{color:var(--muted);font-weight:400}
+.hero-sub{
+  margin-top:24px;font-size:clamp(14px,1.6vw,17px);color:var(--muted);
+  max-width:680px;letter-spacing:.02em;
+}
+.chain{
+  margin-top:34px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+}
+.chain .step{color:var(--text);border:1px solid var(--border);border-radius:4px;padding:7px 12px}
+.chain .arr{color:var(--faint)}
+.tags{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.tag-pill{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted);border:1px dashed var(--border-dash);border-radius:4px;padding:8px 16px}
+.cta-row{margin-top:40px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  height:44px;padding:0 26px;border-radius:6px;
+  font-size:13.5px;font-weight:600;letter-spacing:.03em;transition:.25s;
+}
+.btn-white{background:var(--text);color:var(--bg)}
+.btn-white:hover{opacity:.82}
+.btn-outline{border:1px dashed var(--border-dash);color:var(--text)}
+.btn-outline:hover{background:rgba(241,241,241,.06)}
+.btn .arr{font-family:var(--mono);font-size:12px}
+
+.hero-stats{
+  margin-top:64px;width:100%;max-width:1080px;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--border-soft);
+}
+.hero-stat{padding:26px 12px 8px;border-right:1px solid var(--border-soft);text-align:left}
+.hero-stat:last-child{border-right:none}
+.hero-stat .v{font-family:var(--mono);font-size:clamp(28px,3.6vw,48px);font-weight:400;line-height:1;letter-spacing:-.02em}
+.hero-stat .v small{font-size:.45em;color:var(--faint)}
+.hero-stat .l{margin-top:10px;font-size:12px;color:var(--muted);letter-spacing:.08em}
+.hero-note{margin-top:14px;width:100%;max-width:1080px;text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--faint)}
+
+.scroll-hint{margin-top:56px;font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--faint);animation:bob 2.4s infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(7px);opacity:1}}
+
+main{max-width:1240px;margin:0 auto;padding:0 28px}
+.sec{padding:clamp(80px,12vh,140px) 0;border-top:1px solid var(--border-soft)}
+
+.sec-head{margin-bottom:clamp(40px,5.5vw,70px)}
+.sec-meta{display:flex;align-items:baseline;gap:18px;margin-bottom:20px}
+.sec-no{font-family:var(--mono);font-size:13px;color:var(--text);letter-spacing:.1em}
+.sec-label{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.3em}
+.sec-title{font-size:clamp(28px,4.2vw,52px);font-weight:500;line-height:1.12;letter-spacing:-.01em;max-width:860px}
+.sec-desc{margin-top:14px;color:var(--muted);font-size:15px;max-width:680px;letter-spacing:.01em}
+
+.rows{border-top:1px solid var(--border-soft)}
+.row{
+  display:grid;grid-template-columns:72px 1fr 1.2fr;gap:28px;
+  padding:28px 4px;border-bottom:1px solid var(--border-soft);align-items:baseline;
+  transition:background .25s;
+}
+.row:hover{background:rgba(241,241,241,.025)}
+.row .idx{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em}
+.row h3{font-size:clamp(16px,1.9vw,20px);font-weight:600;letter-spacing:.01em}
+.row p{font-size:14px;color:var(--muted);line-height:1.8}
+.row p b{color:var(--text);font-weight:600}
+
+.quote{
+  margin:clamp(40px,5.5vw,64px) 0 0;
+  padding:clamp(26px,4vw,44px);
+  border:1px dashed var(--border-dash);border-radius:8px;
+  font-family:var(--serif);font-size:clamp(17px,2.2vw,24px);line-height:1.6;text-align:center;
+}
+.quote .q-src{display:block;margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--faint);font-style:normal}
+
+.data-block{margin-top:clamp(40px,5.5vw,64px)}
+.data-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.data-head h3{font-size:clamp(18px,2.2vw,24px);font-weight:500}
+.data-head span{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.18em}
+.data-src{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--faint);margin-top:14px;border-left:1px solid var(--border);padding-left:14px}
+.struct{border:1px solid var(--border-soft);border-radius:10px;padding:clamp(26px,3.5vw,46px)}
+.struct-node{border:1px solid var(--border);border-radius:8px;padding:16px 20px;text-align:center;font-size:15px;font-weight:600;background:var(--bg2)}
+.struct-line{display:flex;align-items:center;gap:14px;padding:10px 6px;color:var(--faint);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.struct-line::before{content:"↓";color:var(--muted);flex-shrink:0;font-size:13px}
+.struct-branches{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border-soft);border:1px solid var(--border-soft)}
+.struct-item{padding:20px 14px;background:var(--bg);font-size:13.5px;color:var(--text);text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center}
+.struct-item span{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.14em}
+.bar-row{display:grid;grid-template-columns:150px 1fr 70px;gap:22px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--border-soft)}
+.bar-row .name{font-size:14px;color:var(--text);letter-spacing:.02em}
+.bar-track{height:1px;background:rgba(241,241,241,.16);position:relative}
+.bar-fill{position:absolute;left:0;top:-1px;height:3px;background:var(--text);width:0;transition:width 1.3s cubic-bezier(.2,.8,.2,1)}
+.bar-row .pct{font-family:var(--mono);font-size:13px;color:var(--muted);text-align:right}
+
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+.stat{border-right:1px solid var(--border-soft);padding:30px 24px;text-align:left}
+.stat:last-child{border-right:none}
+.stat .v{font-family:var(--mono);font-size:clamp(24px,3.2vw,42px);line-height:1;letter-spacing:-.02em}
+.stat .v small{font-size:.45em;color:var(--faint)}
+.stat .l{margin-top:12px;font-size:12px;color:var(--muted);letter-spacing:.08em}
+.stat .note{margin-top:2px;font-size:11px;color:var(--faint);letter-spacing:.06em}
+
+.flow{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border-soft)}
+.flow-step{padding:32px 24px 10px;border-right:1px solid var(--border-soft);position:relative}
+.flow-step:last-child{border-right:none}
+.flow-step .num{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.14em}
+.flow-step b{display:block;margin:12px 0 8px;font-size:15.5px;font-weight:600}
+.flow-step span{font-size:13px;color:var(--muted)}
+.flow-arr{position:absolute;top:40px;right:-9px;color:var(--faint);font-family:var(--mono);font-size:12px;z-index:2}
+.flow-note{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--faint);margin-top:14px;padding-left:4px}
+
+.sub-block{margin-top:clamp(56px,8vh,100px)}
+.sub-block:first-child{margin-top:0}
+.sub-head{display:flex;align-items:baseline;gap:18px;margin-bottom:12px;flex-wrap:wrap}
+.sub-idx{font-family:var(--mono);font-size:12px;color:var(--text);letter-spacing:.12em}
+.sub-title{font-size:clamp(19px,2.4vw,28px);font-weight:500;letter-spacing:-.005em}
+.sub-desc{color:var(--muted);font-size:14.5px;max-width:720px;margin-bottom:30px}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.grid-2>*{background:var(--bg)}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.grid-3>*{background:var(--bg)}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.grid-4>*{background:var(--bg)}
+.gitem{padding:28px 26px;transition:background .25s}
+.gitem:hover{background:rgba(241,241,241,.03)}
+.gitem .ico{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.14em;display:block;margin-bottom:12px}
+.gitem h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.gitem p{font-size:13.5px;color:var(--muted)}
+
+.compare{
+  display:grid;grid-template-columns:1fr auto 1fr;gap:1px;background:var(--border-soft);
+  border-top:1px solid var(--border-soft);margin-top:30px;
+}
+.compare-col{padding:32px 30px;background:var(--bg)}
+.compare-col .c-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--faint);display:block;margin-bottom:16px}
+.compare-col h3{font-size:17px;font-weight:600;margin-bottom:14px}
+.compare-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.compare-col li{font-size:13.5px;color:var(--muted)}
+.compare-col li b{color:var(--text);font-weight:600;display:block}
+.compare-col li span{font-size:12.5px}
+.compare-mid{
+  background:var(--bg);display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:32px 22px;text-align:center;
+}
+.compare-mid .m-icon{font-family:var(--mono);font-size:20px;color:var(--text);margin-bottom:10px}
+.compare-mid .m-text{font-family:var(--mono);font-size:11px;line-height:1.9;letter-spacing:.1em;color:var(--muted)}
+.compare-result{
+  border:1px dashed var(--border-dash);border-radius:6px;padding:18px 22px;margin-top:24px;
+  display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;
+}
+.compare-result b{font-size:14.5px;font-weight:600}
+.compare-result span{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em}
+
+.kb-src{display:flex;gap:10px;margin:20px 0 30px;flex-wrap:wrap}
+.kb-src span{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);border:1px dashed var(--border-dash);border-radius:4px;padding:8px 16px}
+.kb-tables{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.kb-table{padding:26px 24px;background:var(--bg)}
+.kb-table h4{font-size:14.5px;font-weight:600;margin-bottom:14px;display:flex;gap:10px;align-items:center}
+.kb-table ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+.kb-table li{font-size:12.5px;color:var(--muted);display:flex;gap:9px}
+.kb-table li::before{content:"·";color:var(--text);font-weight:700}
+.kb-note{margin-top:24px;font-family:var(--serif);font-size:15px;color:var(--muted);border-left:1px solid var(--text);padding-left:18px}
+
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft);margin-top:36px}
+.shots.cols-3{grid-template-columns:1fr 1fr 1fr}
+.shot{background:var(--bg);padding:12px 12px 16px;cursor:zoom-in;transition:background .25s}
+.shot:hover{background:rgba(241,241,241,.03)}
+.shot img{width:100%;border:1px solid var(--border-soft);transition:opacity .3s}
+.shot:hover img{opacity:.9}
+.shot-cap{display:flex;justify-content:space-between;gap:12px;padding:12px 4px 0;font-size:12px;color:var(--muted)}
+.shot-cap b{color:var(--text);font-weight:500}
+
+.module-box{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.module{padding:32px 30px;background:var(--bg)}
+.module .m-tag{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.18em;display:block;margin-bottom:14px}
+.module h3{font-size:18px;font-weight:500;margin-bottom:18px}
+.module-list{list-style:none;display:flex;flex-direction:column;gap:13px}
+.module-list li{display:grid;grid-template-columns:auto 1fr;gap:14px;font-size:13.5px;color:var(--muted);line-height:1.75}
+.module-list li::before{content:"→";font-family:var(--mono);color:var(--text);font-size:12px;margin-top:3px}
+.module-list li b{color:var(--text);font-weight:600}
+.rule{margin-top:22px;padding:15px 17px;border:1px dashed rgba(241,241,241,.22);border-radius:6px;font-size:13px;color:var(--muted)}
+.rule b{color:var(--text);font-weight:600}
+
+.tree{border:1px solid var(--border-soft);border-radius:10px;padding:clamp(24px,3.5vw,44px);margin-top:30px}
+.tree-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--faint);margin-bottom:22px}
+.tree-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tree-node{
+  border:1px solid var(--border);border-radius:8px;padding:18px 20px;background:var(--bg2);
+  font-size:13.5px;color:var(--muted);display:flex;gap:12px;align-items:flex-start;
+}
+.tree-node b{color:var(--text);font-weight:600;display:block;font-size:14px;margin-bottom:4px}
+.tree-node .t-num{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:2px}
+.tree-q{
+  border:1px solid var(--border-dash);border-radius:8px;padding:18px 20px;text-align:center;
+  font-size:15px;font-weight:600;margin-bottom:20px;display:flex;justify-content:center;gap:12px;align-items:center;flex-wrap:wrap;
+}
+.tree-q .q-ico{font-family:var(--mono);font-size:18px}
+.tree-gate{
+  border:1px dashed var(--border-dash);border-radius:8px;padding:14px 18px;margin:20px 0;
+  font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;
+}
+.tree-branch{display:flex;align-items:center;gap:12px;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--faint);margin:16px 0}
+.tree-branch .b-line{flex:0 0 40px;height:1px;background:var(--border)}
+.tree-yes{color:var(--text)}
+.tree-ok{border-color:rgba(241,241,241,.35)}
+.tree-risk{border-color:rgba(241,241,241,.35)}
+.tree-result{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tree-result .tree-node{border-style:dashed}
+
+.cases{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.case{display:grid;grid-template-columns:1.05fr .95fr;background:var(--bg)}
+.case-body{padding:32px 30px;display:flex;flex-direction:column}
+.case-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--faint);display:block;margin-bottom:16px}
+.case h3{font-size:clamp(16px,1.9vw,20px);font-weight:600;margin-bottom:10px}
+.case .q{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+.case-points{list-style:none;display:flex;flex-direction:column;gap:9px;margin-top:auto}
+.case-points li{display:grid;grid-template-columns:auto 1fr;gap:11px;font-size:13.5px;color:var(--muted)}
+.case-points li::before{content:"✓";font-family:var(--mono);color:var(--text);font-size:12px;margin-top:2px}
+.case-shot{padding:12px;cursor:zoom-in;border-left:1px solid var(--border-soft);display:flex;flex-direction:column}
+.case-shot img{width:100%;flex:1;object-fit:cover;border:1px solid var(--border-soft);min-height:190px}
+.case-shot .hint{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--faint);padding:12px 4px 0;text-align:right}
+
+.bug-box{
+  border:1px solid rgba(241,241,241,.2);border-left:3px solid var(--text);border-radius:8px;
+  padding:22px 26px;margin-bottom:24px;background:var(--bg2);
+}
+.bug-box .b-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--faint);display:block;margin-bottom:10px}
+.bug-box h3{font-size:16.5px;font-weight:600;margin-bottom:8px}
+.bug-box p{font-size:13.5px;color:var(--muted)}
+
+.opt-rows{border-top:1px solid var(--border-soft);margin-top:clamp(44px,5.5vw,64px)}
+.opt-row{display:grid;grid-template-columns:72px 1fr 1.4fr;gap:28px;padding:28px 4px;border-bottom:1px solid var(--border-soft);align-items:baseline}
+.opt-row .idx{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em}
+.opt-row h3{font-size:clamp(15px,1.8vw,19px);font-weight:600}
+.opt-row p{font-size:13.5px;color:var(--muted)}
+
+.conversion-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.conv-step{padding:30px 20px 12px;background:var(--bg);position:relative}
+.conv-step .num{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.14em}
+.conv-step b{display:block;margin:12px 0 8px;font-size:15px;font-weight:600}
+.conv-step span{font-size:12.5px;color:var(--muted)}
+.conv-arr{position:absolute;top:38px;right:-9px;color:var(--faint);font-family:var(--mono);font-size:12px;z-index:2}
+
+.path-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.path{padding:30px 28px;background:var(--bg);transition:background .25s}
+.path:hover{background:rgba(241,241,241,.03)}
+.path .p-tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--faint);display:block;margin-bottom:12px}
+.path h3{font-size:16.5px;font-weight:600;margin-bottom:6px}
+.path .meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.path p{font-size:13px;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft);margin-top:40px}
+.step{padding:28px 24px;background:var(--bg)}
+.step .s-no{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--faint);display:block;margin-bottom:12px}
+.step b{display:block;font-size:15px;font-weight:600;margin-bottom:8px}
+.step span{font-size:12.5px;color:var(--muted);display:block}
+
+.methods{border-top:1px solid var(--border-soft)}
+.method{display:grid;grid-template-columns:92px 1fr;gap:28px;padding:clamp(28px,4vw,44px) 4px;border-bottom:1px solid var(--border-soft);align-items:start}
+.method .m-no{font-family:var(--mono);font-size:12px;color:var(--text);letter-spacing:.14em;padding-top:4px}
+.method h3{font-size:clamp(17px,2vw,22px);font-weight:500;margin-bottom:8px}
+.method p{font-size:13.5px;color:var(--muted);max-width:640px}
+
+.practice-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.practice{padding:28px 26px;background:var(--bg);transition:background .25s}
+.practice:hover{background:rgba(241,241,241,.03)}
+.practice .p-no{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--faint);display:block;margin-bottom:12px}
+.practice h3{font-size:15.5px;font-weight:600;margin-bottom:8px}
+.practice p{font-size:12.5px;color:var(--muted);line-height:1.75}
+
+.final{padding:clamp(90px,14vh,170px) 0 clamp(70px,10vh,120px);text-align:center;border-top:1px solid var(--border-soft)}
+.final .identity{margin-bottom:28px}
+.final h2{font-size:clamp(30px,4.8vw,64px);font-weight:500;line-height:1.12;letter-spacing:-.015em}
+.final .sub{margin-top:20px;color:var(--muted);font-size:14.5px;max-width:580px;margin-left:auto;margin-right:auto}
+
+.about{border-top:1px solid var(--border-soft);padding:clamp(64px,9vh,110px) 0 40px}
+.about-head{display:flex;align-items:baseline;gap:18px;margin-bottom:40px;flex-wrap:wrap}
+.about-head .sec-no{font-family:var(--mono);font-size:12px;letter-spacing:.12em}
+.about-head h2{font-size:clamp(23px,2.8vw,34px);font-weight:500}
+.about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:1px;background:var(--border-soft);border-top:1px solid var(--border-soft)}
+.about-cell{background:var(--bg);padding:34px 32px}
+.about-cell h3{font-size:14.5px;font-weight:600;margin-bottom:16px;display:flex;gap:10px;align-items:center}
+.about-cell ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.about-cell li{display:grid;grid-template-columns:auto 1fr;gap:12px;font-size:13.5px;color:var(--muted)}
+.about-cell li::before{content:"✓";font-family:var(--mono);color:var(--text);font-size:12px;margin-top:2px}
+.about-cell p{font-size:13.5px;color:var(--muted);line-height:1.9}
+.contact-line{display:grid;grid-template-columns:auto 1fr;gap:18px;padding:13px 0;border-bottom:1px solid var(--border-soft);font-size:13px}
+.contact-line:last-child{border-bottom:none}
+.contact-line b{font-weight:600;color:var(--text);font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;padding-top:2px}
+.contact-line span{color:var(--muted)}
+
+footer{border-top:1px solid var(--border-soft);padding:30px 28px 44px;text-align:center}
+.foot-inner{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.foot-brand{font-size:13px;font-weight:600;letter-spacing:.06em}
+.foot-line{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--faint)}
+.foot-line a:hover{color:var(--text)}
+
+.lightbox{
+  position:fixed;inset:0;z-index:100;background:rgba(2,2,2,.94);
+  display:none;align-items:center;justify-content:center;padding:30px;cursor:zoom-out;
+  backdrop-filter:blur(10px);
+}
+.lightbox.open{display:flex}
+.lightbox img{max-width:min(900px,94vw);max-height:84vh;border:1px solid var(--border);box-shadow:0 30px 90px rgba(0,0,0,.7)}
+.lb-cap{margin-top:14px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted)}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
+
+.demo-shot{margin:0 auto;width:86%;max-width:1180px}
+.demo-shot img{width:100%;height:auto;border:1px solid var(--border-soft);border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.demo-grid{margin-top:36px}
+.demo-think{margin:46px auto 0;max-width:760px;text-align:center;font-size:clamp(17px,2.2vw,24px);line-height:1.8;letter-spacing:.01em;color:var(--text)}
+
+.reveal.visible{opacity:1;transform:none}
+
+@media(max-width:960px){
+  .nav-links{display:none}
+  .hero-stats{grid-template-columns:1fr 1fr}
+  .hero-stat:nth-child(2){border-right:none}
+  .hero-stat:nth-child(n+3){border-top:1px solid var(--border-soft)}
+  .stats-strip{grid-template-columns:1fr 1fr}
+  .stat:nth-child(2){border-right:none}
+  .stat:nth-child(n+3){border-top:1px solid var(--border-soft)}
+  .flow{grid-template-columns:1fr 1fr}
+  .flow-step:nth-child(2){border-right:none}
+  .flow-step:nth-child(n+3){border-top:1px solid var(--border-soft)}
+  .flow-arr,.conv-arr{display:none}
+  .conversion-flow{grid-template-columns:repeat(2,1fr)}
+  .grid-3,.grid-4,.kb-tables,.path-cards,.practice-grid{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .case{grid-template-columns:1fr}
+  .case-shot{border-left:none;border-top:1px solid var(--border-soft)}
+  .about-grid{grid-template-columns:1fr}
+  .demo-grid{grid-template-columns:repeat(3,1fr)}
+  .tree-row,.tree-result{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .struct-branches{grid-template-columns:1fr}
+  .grid-2,.grid-3,.grid-4,.module-box,.shots,.shots.cols-3,.kb-tables,.path-cards,.practice-grid,.steps,.conversion-flow{grid-template-columns:1fr}
+  .compare{grid-template-columns:1fr}
+  .compare-mid{border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+  .row{grid-template-columns:1fr;gap:10px;padding:24px 2px}
+  .opt-row{grid-template-columns:1fr;gap:10px;padding:24px 2px}
+  .method{grid-template-columns:1fr;gap:10px;padding:28px 2px}
+  .bar-row{grid-template-columns:88px 1fr 52px;gap:12px}
+  .hero-stat{padding:20px 8px 8px}
+  .demo-shot{width:100%}
+  main,.nav-inner,.hero,footer{padding-left:20px;padding-right:20px}
+}
+</style>
+</head>
+<body>
+<div class="bg-fade"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand"><span class="b1">AI PRACTICE</span>AI应用实践作品集</div>
+    <div class="nav-links">
+      <a href="#why"><span class="n">01</span>为什么做</a>
+      <a href="#project"><span class="n">02</span>核心项目</a>
+      <a href="#knowledge"><span class="n">03</span>知识库</a>
+      <a href="#risk"><span class="n">04</span>风险控制</a>
+      <a href="#test"><span class="n">05</span>测试验证</a>
+      <a href="#conversion"><span class="n">06</span>业务转化</a>
+      <a href="#about"><span class="n">07</span>关于我</a>
+    </div>
+    <a class="nav-cta" href="#project">查看核心项目</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="identity reveal">AI应用实践者 · 非技术背景</div>
+  <h1 class="h1 reveal">AI 应用实践<br><span class="thin">把真实业务问题，变成可落地的 AI 方案</span></h1>
+  <p class="hero-sub reveal">网络与新媒体专业，非技术背景。通过 AI Agent、知识库与流程设计，探索 AI 在真实业务场景中的应用，完成从问题发现到方案落地的完整闭环。</p>
+  <div class="chain reveal">
+    <span class="step">问题发现</span><span class="arr">→</span>
+    <span class="step">需求分析</span><span class="arr">→</span>
+    <span class="step">方案设计</span><span class="arr">→</span>
+    <span class="step">Agent搭建</span><span class="arr">→</span>
+    <span class="step">测试优化</span><span class="arr">→</span>
+    <span class="step">业务转化</span>
+  </div>
+  <div class="tags reveal">
+    <span class="tag-pill">AI Agent</span>
+    <span class="tag-pill">业务分析</span>
+    <span class="tag-pill">AI应用落地</span>
+  </div>
+  <div class="cta-row reveal">
+    <a class="btn btn-white" href="#project">查看核心项目<span class="arr">→</span></a>
+    <a class="btn btn-outline" href="#practice">查看其他AI实践</a>
+  </div>
+  <div class="hero-stats reveal">
+    <div class="hero-stat"><div class="v">3<small> 类</small></div><div class="l">高频问题归纳</div></div>
+    <div class="hero-stat"><div class="v">4<small> 类</small></div><div class="l">测试场景覆盖</div></div>
+    <div class="hero-stat"><div class="v">3<small> 张</small></div><div class="l">知识库结构表</div></div>
+  </div>
+  <div class="scroll-hint">向下滚动</div>
+</header>
+
+<main>
+  <section class="sec" id="why">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">01</span><span class="sec-label">Why AI</span></div>
+      <h2 class="sec-title">我为什么开始做 AI 应用？</h2>
+    </div>
+    <div class="rows reveal">
+      <div class="row">
+        <span class="idx">01</span>
+        <h3>不是从编程开始接触 AI</h3>
+        <p>我的专业是网络与新媒体，AI 对我的起点是工具，是能在真实工作里帮我解决问题的东西。</p>
+      </div>
+      <div class="row">
+        <span class="idx">02</span>
+        <h3>更关心三个问题</h3>
+        <p>哪些重复问题可以被解决？哪些流程可以被重新设计？AI 到底能不能真正进入工作场景？</p>
+      </div>
+      <div class="row">
+        <span class="idx">03</span>
+        <h3>从真实问题出发，而不是从工具出发</h3>
+        <p>先找到业务里真实存在的缺口，再去选工具、搭方案、验证效果。工具是为问题服务的。</p>
+      </div>
+    </div>
+    <div class="quote reveal">AI 的价值不在工具本身，在于它能不能解决一个真实存在的问题。<span class="q-src">我的 AI 应用实践原则</span></div>
+  </section>
+
+  <section class="sec" id="project">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">02</span><span class="sec-label">Featured Project</span></div>
+      <h2 class="sec-title">核心项目：AI 医院智能导诊助手</h2>
+      <p class="sec-desc">一个完整的 AI 应用落地案例。从发现医院私信咨询无人回复的真实缺口开始，完成用户分析、知识库设计、Agent 搭建、风险控制、测试迭代与业务转化设计。</p>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="gitem"><span class="ico">背景</span><h3>医院新媒体后台</h3><p>患者私信咨询长期无人回复，问题来了却没有及时的人力接住。</p></div>
+      <div class="gitem"><span class="ico">方案</span><h3>Coze 智能导诊 Agent</h3><p>基于知识库与提示词设计的智能导诊助手，完成 Prototype 搭建与测试。</p></div>
+      <div class="gitem"><span class="ico">验证</span><h3>效果数据化</h3><p>测试覆盖基础流程、模糊分诊、高危拦截、敏感问题四类场景，验证方案可行性。</p></div>
+    </div>
+
+    <div class="flow reveal" style="margin-top:40px">
+      <div class="flow-step"><span class="num">STEP 01</span><b>发现断点</b><span>咨询堆积，无人响应</span></div>
+      <div class="flow-step"><span class="num">STEP 02</span><b>用户分析</b><span>咨询分类归纳</span></div>
+      <div class="flow-step"><span class="num">STEP 03</span><b>搭建方案</b><span>知识库 + Agent + 护栏</span></div>
+      <div class="flow-step"><span class="num">STEP 04</span><b>测试落地</b><span>用例验证 + 转化设计</span></div>
+    </div>
+    <div class="flow-note reveal">以下按完整案例流程展开：问题发现 → 用户分析 → 知识库 → Agent → Prompt → 风险控制 → 测试 → 业务转化 → 落地思考</div>
+  </section>
+
+  <section class="sec" id="problem">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">03</span><span class="sec-label">Problem</span></div>
+      <h2 class="sec-title">问题发现：一个真实存在的缺口</h2>
+      <p class="sec-desc">在广西医科大学附属口腔医院宣传科实习期间，我发现医院新媒体后台每天收到大量患者私信，却长期无人回复。患者的问题来了，但没有及时的人力去接住。</p>
+    </div>
+
+    <div class="rows reveal">
+      <div class="row">
+        <span class="idx">01</span>
+        <h3>大量咨询无人回复</h3>
+        <p>患者私信问诊、挂号、价格、流程，消息长期堆积，问题得不到及时响应。</p>
+      </div>
+      <div class="row">
+        <span class="idx">02</span>
+        <h3>不是不想回，是不敢回</h3>
+        <p>宣传科成员不是医疗人员，诊断建议存在医疗风险，叠加人力有限、隐私保护与权责边界等考量。</p>
+      </div>
+      <div class="row">
+        <span class="idx">03</span>
+        <h3>咨询大量重复</h3>
+        <p>我观察后台私信后发现，其中一部分问题高度重复，具备标准化处理的可能。这也是我开始思考：这些问题是否可以交给 AI 处理。</p>
+      </div>
+    </div>
+
+    <div class="data-block reveal">
+      <div class="data-head"><h3>用户问题结构</h3><span>从后台私信观察中归纳</span></div>
+      <div class="struct">
+        <div class="struct-node">后台私信</div>
+        <div class="struct-line">大量问题属于重复性、标准化咨询</div>
+        <div class="struct-node">三类高频问题</div>
+        <div class="struct-branches">
+          <div class="struct-item"><span>01</span>医院基本信息</div>
+          <div class="struct-item"><span>02</span>科室信息</div>
+          <div class="struct-item"><span>03</span>医生信息</div>
+        </div>
+        <div class="struct-line">按三类问题分别构建</div>
+        <div class="struct-node">知识库三张表</div>
+        <div class="struct-line">支撑 Agent 自动回答</div>
+        <div class="struct-node">Agent 回答</div>
+      </div>
+      <div class="data-src">说明：问题归纳基于后台私信观察与进一步梳理，非逐条统计结果</div>
+    </div>
+
+    <div class="quote reveal">后台存在不少重复性、常见问题，患者需要的是即时响应，而不是等待人工回复。<span class="q-src">结论：这类咨询适合交给 AI 自动回答</span></div>
+  </section>
+
+  <section class="sec" id="knowledge">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">04</span><span class="sec-label">Knowledge Base</span></div>
+      <h2 class="sec-title">知识库设计：让 AI 听懂患者的话</h2>
+      <p class="sec-desc">这个项目的核心难点不是 AI 会不会答，而是 AI 能不能听懂患者怎么说。患者不会说专业术语，只会说大白话，知识库必须做口语化设计。</p>
+    </div>
+
+    <div class="compare reveal">
+      <div class="compare-col">
+        <span class="c-tag">患者这样说</span>
+        <h3>用户口语表达</h3>
+        <ul>
+          <li><b>洗牙</b><span>挂号时最常见的口语说法</span></li>
+          <li><b>牙疼酸胀</b><span>模糊症状，说不清科室</span></li>
+          <li><b>想拔智齿</b><span>操作类需求表达</span></li>
+        </ul>
+      </div>
+      <div class="compare-mid">
+        <span class="m-icon">⇄</span>
+        <span class="m-text">AI 语义匹配<br>患者口语 ↔ 专业术语<br>常见表达映射</span>
+      </div>
+      <div class="compare-col">
+        <span class="c-tag">医院这样说</span>
+        <h3>专业术语对应</h3>
+        <ul>
+          <li><b>牙周黏膜科</b><span>洁治术对应科室</span></li>
+          <li><b>牙髓炎症状</b><span>症状对应诊断方向</span></li>
+          <li><b>阻生智齿拔除</b><span>手术类项目</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="compare-result reveal">
+      <b>我真正做的不是填知识库，而是重新设计 AI 理解用户的方式。</b>
+      <span>医院资料通常使用专业术语，而患者更习惯用日常语言描述问题。我在知识库中增加用户口语表达字段，让专业信息和真实用户表达建立映射。</span>
+    </div>
+
+    <div class="sub-block reveal">
+      <div class="sub-head"><span class="sub-idx">4.1</span><h2 class="sub-title">三张关系表，把散落信息结构化</h2></div>
+      <p class="sub-desc">数据来源是官网、公众号和小红书历史内容，不是凭空编造。清洗重组为三张关系表，让 AI 按结构检索。</p>
+      <div class="kb-src">
+        <span>数据来源 / 官网</span>
+        <span>公众号</span>
+        <span>小红书历史内容</span>
+      </div>
+      <div class="kb-tables">
+        <div class="kb-table">
+          <h4>🏥 医院基本信息表</h4>
+          <ul>
+            <li>地址</li><li>门诊时间</li><li>急诊时间</li><li>乘车路线</li><li>挂号方式</li><li>就诊流程</li>
+          </ul>
+        </div>
+        <div class="kb-table">
+          <h4>🗂️ 科室导览表</h4>
+          <ul>
+            <li>10 个科室</li><li>科室位置</li><li>患者口语说法</li><li>对应症状</li><li>科室简介</li><li>联系电话</li>
+          </ul>
+        </div>
+        <div class="kb-table">
+          <h4>👨‍⚕️ 医生图鉴表</h4>
+          <ul>
+            <li>医生姓名</li><li>所属科室</li><li>职称</li><li>临床擅长</li><li>出诊时间</li>
+          </ul>
+        </div>
+      </div>
+      <div class="kb-note">三张表互相关联：患者口语 → 症状 → 科室 → 医生，AI 可以跨表检索完成推荐。</div>
+      <div class="shots cols-3">
+        <figure class="shot">
+          <img src="knowledge-base.png" alt="知识库数据来源界面" loading="lazy">
+          <figcaption class="shot-cap"><b>知识库导览</b><span>数据来源与整体结构</span></figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="knowledge-base-02.png" alt="知识库表格列表与内容" loading="lazy">
+          <figcaption class="shot-cap"><b>表格管理</b><span>表格列表 + 内容</span></figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="knowledge-base-03.png" alt="知识库内容细节" loading="lazy">
+          <figcaption class="shot-cap"><b>内容细节</b><span>字段与数据颗粒度</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="agent">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">05</span><span class="sec-label">Agent Architecture</span></div>
+      <h2 class="sec-title">Agent 搭建：没有写一行代码</h2>
+      <p class="sec-desc">为了快速验证 AI 是否能解决这一真实业务问题，我选择使用 Coze 进行低代码 Agent 搭建，将重点放在知识库设计、Prompt、风险机制与测试优化上。</p>
+    </div>
+
+    <div class="flow reveal">
+      <div class="flow-step"><span class="num">01</span><b>患者提问</b><span>口语化表达，可能模糊</span></div>
+      <div class="flow-step"><span class="num">02</span><b>意图识别</b><span>预约 / 价格 / 挂号 / 流程</span></div>
+      <div class="flow-step"><span class="num">03</span><b>知识库检索</b><span>跨三张表匹配答案</span></div>
+      <div class="flow-step"><span class="num">04</span><b>Agent 判断</b><span>正常回答 / 引导 / 拦截</span></div>
+    </div>
+    <div class="flow-note reveal">Agent 架构 = 提示词（角色 + 规则 + 模板）+ 知识库（三张表）+ 风险护栏，三者组合生效</div>
+
+    <div class="sub-block reveal">
+      <div class="sub-head"><span class="sub-idx">5.1</span><h2 class="sub-title">Prompt 设计：交互与安全并重</h2></div>
+      <div class="module-box">
+        <div class="module">
+          <span class="m-tag">模块一 · 交互设计</span>
+          <h3>让 AI 答得快，答得清楚</h3>
+          <ul class="module-list">
+            <li><span><b>角色定位</b>：限定为医院导诊助手，不做医疗诊断，只做信息指引。</span></li>
+            <li><span><b>响应优化</b>：关闭思维链与深度思考，固定格式快速回复。</span></li>
+            <li><span><b>场景适配</b>：科室指引、医生查询、挂号信息三类问题，配表情和版式，手机阅读友好。</span></li>
+          </ul>
+        </div>
+        <div class="module">
+          <span class="m-tag">模块二 · 高风险场景拦截机制</span>
+          <h3>先守底线，再谈体验</h3>
+          <ul class="module-list">
+            <li><span><b>双重风险识别</b>：人群特征 + 操作类型组合判断，高危场景自动拦截。</span></li>
+            <li><span><b>引导转向机制</b>：如三级高血压患者，提醒携带检查材料到院面诊，不直接作答。</span></li>
+            <li><span><b>合规保障</b>：限制回答范围并附加免责提示，高风险场景统一按合规话术处理。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="shots">
+        <figure class="shot">
+          <img src="prompt-design.png" alt="提示词设计界面截图" loading="lazy">
+          <figcaption class="shot-cap"><b>提示词设计</b><span>角色定位 + 交互模块</span></figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="prompt-module.png" alt="提示词模块设计截图" loading="lazy">
+          <figcaption class="shot-cap"><b>提示词模块</b><span>响应优化 + 安全护栏</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="risk">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">06</span><span class="sec-label">Risk Control</span></div>
+      <h2 class="sec-title">风险控制：先发现 Bug，再设计拦截</h2>
+      <p class="sec-desc">医疗场景的风险不是要不要防的问题，而是必须防住。这一节展示我如何发现风险、设计拦截机制、并验证结果。</p>
+    </div>
+
+    <div class="bug-box reveal">
+      <span class="b-tag">测试中发现的 Bug</span>
+      <h3>高危场景可能给出风险建议</h3>
+      <p>早期测试发现：当患者描述 70 岁老人 + 三级高血压 + 拔牙 这类高危组合时，Agent 存在直接给出操作建议的风险。医疗场景下，回答错误的风险远大于回答不及时，必须拦截。</p>
+    </div>
+
+    <div class="tree reveal">
+      <div class="tree-label">风险拦截决策逻辑</div>
+      <div class="tree-q"><span class="q-ico">❓</span>用户问题进入 Agent</div>
+      <div class="tree-branch"><span class="b-line"></span><span class="tree-yes">检查风险因素</span><span class="b-line"></span></div>
+      <div class="tree-row">
+        <div class="tree-node tree-ok">
+          <div><b>无风险因素</b><span>常规问题，正常回答，引导预约</span></div>
+          <span class="t-num">正常路径</span>
+        </div>
+        <div class="tree-node tree-risk">
+          <div><b>触发风险因素</b><span>人群特征 + 操作类型双重判断</span></div>
+          <span class="t-num">拦截路径</span>
+        </div>
+      </div>
+      <div class="tree-gate">针对 Prototype 测试中发现的高风险组合场景，增加人群特征 + 操作类型的联合判断机制。</div>
+      <div class="tree-result">
+        <div class="tree-node">
+          <div><b>高危拦截</b><span>强制携带检查材料到院面诊，不直接作答</span></div>
+          <span class="t-num">结果 1 · 高危场景测试全部触发拦截</span>
+        </div>
+        <div class="tree-node">
+          <div><b>敏感话题拦截</b><span>价格等敏感信息统一合规话术，转线下初诊</span></div>
+          <span class="t-num">结果 2 · 边界问题统一合规引导</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="shots reveal">
+      <figure class="shot">
+        <img src="risk-test.png" alt="高危医疗风险拦截测试截图" loading="lazy">
+        <figcaption class="shot-cap"><b>高危拦截测试</b><span>70 岁老人 + 三级高血压 + 拔牙</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="agent-test-04.png" alt="价格敏感问题拦截测试截图" loading="lazy">
+        <figcaption class="shot-cap"><b>敏感拦截测试</b><span>正畸价格咨询拒绝报价</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec" id="test">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">07</span><span class="sec-label">Testing</span></div>
+      <h2 class="sec-title">测试与迭代：用用例验证行为</h2>
+      <p class="sec-desc">4 类测试用例覆盖基础流程、模糊分诊、高危拦截、商业敏感问题四个方向，每类用例截图留档，作为验收依据。</p>
+    </div>
+
+    <div class="cases reveal">
+      <article class="case">
+        <div class="case-body">
+          <span class="case-tag">CASE 01 · 基础流程</span>
+          <h3>就诊流程问答</h3>
+          <p class="q">模拟患者询问如何就诊、需要带什么材料。</p>
+          <ul class="case-points">
+            <li>回答内容与知识库一致，无编造内容</li>
+            <li>回答排版清晰，步骤式输出</li>
+          </ul>
+        </div>
+        <div class="case-shot"><img src="agent-test-01.png" alt="测试用例1：就诊流程问答" loading="lazy"><span class="hint">点击查看大图</span></div>
+      </article>
+
+      <article class="case">
+        <div class="case-body">
+          <span class="case-tag">CASE 02 · 模糊分诊</span>
+          <h3>牙痛酸胀该挂哪个科</h3>
+          <p class="q">患者说不出科室名，只有模糊症状描述。</p>
+          <ul class="case-points">
+            <li>跨表格检索，症状精准匹配科室</li>
+            <li>口语化说法正确映射知识库</li>
+          </ul>
+        </div>
+        <div class="case-shot"><img src="agent-test-02.png" alt="测试用例2：模糊症状分诊" loading="lazy"><span class="hint">点击查看大图</span></div>
+      </article>
+
+      <article class="case">
+        <div class="case-body">
+          <span class="case-tag">CASE 03 · 高危拦截</span>
+          <h3>70 岁老人 + 三级高血压 + 拔牙</h3>
+          <p class="q">高危人群叠加高风险操作，最容易出事的场景。</p>
+          <ul class="case-points">
+            <li>成功触发风险拦截</li>
+            <li>强制提示携带体检报告到院面诊</li>
+            <li>不直接给出任何操作建议</li>
+          </ul>
+        </div>
+        <div class="case-shot"><img src="risk-test.png" alt="测试用例3：高危医疗风险拦截" loading="lazy"><span class="hint">点击查看大图</span></div>
+      </article>
+
+      <article class="case">
+        <div class="case-body">
+          <span class="case-tag">CASE 04 · 商业敏感</span>
+          <h3>正畸价格咨询</h3>
+          <p class="q">患者直接问价格，涉及商业敏感信息。</p>
+          <ul class="case-points">
+            <li>触发价格拦截，拒绝线上报价</li>
+            <li>统一话术，转线下初诊引导</li>
+          </ul>
+        </div>
+        <div class="case-shot"><img src="agent-test-04.png" alt="测试用例4：价格敏感问题拦截" loading="lazy"><span class="hint">点击查看大图</span></div>
+      </article>
+    </div>
+
+    <div class="stats-strip reveal" style="margin-top:40px">
+      <div class="stat"><div class="v">基础</div><div class="l">基础信息测试</div><div class="note">回答与知识库一致，规范清晰</div></div>
+      <div class="stat"><div class="v">分诊</div><div class="l">模糊分诊测试</div><div class="note">口语症状正确映射科室</div></div>
+      <div class="stat"><div class="v">拦截</div><div class="l">高危拦截测试</div><div class="note">风险场景全部触发拦截</div></div>
+      <div class="stat"><div class="v">敏感</div><div class="l">敏感问题测试</div><div class="note">统一合规引导，不报价</div></div>
+    </div>
+    <div class="data-src reveal">说明：以上为原型阶段测试结果，覆盖四类场景，测试用例与验收标准留档</div>
+
+    <div class="opt-rows reveal">
+      <div class="opt-row">
+        <span class="idx">迭代 1</span>
+        <h3>去除大模型思维链</h3>
+        <p>测试中发现默认模式回复慢且容易带思考痕迹。切换急速版 Flash、关闭深度思考、加强制性 Prompt，回复速度与输出稳定性得到改善。</p>
+      </div>
+      <div class="opt-row">
+        <span class="idx">迭代 2</span>
+        <h3>增设医疗合规机制</h3>
+        <p>紧急场景分类 + 语义拦截提示词架构，把高风险场景从可能漏判变为稳定拦截。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="demo">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">08</span><span class="sec-label">Prototype Demo</span></div>
+      <h2 class="sec-title">Prototype Demo｜让 Agent 进入真实业务场景</h2>
+      <p class="sec-desc">我没有让用户进入 Coze 使用 Agent，而是进一步搭建独立前端界面，将 Agent 嵌入实际咨询场景。</p>
+    </div>
+
+    <figure class="demo-shot reveal">
+      <img src="agent-product-demo.png" alt="智能口腔咨询助手独立前端界面截图" loading="lazy">
+    </figure>
+
+    <div class="grid-3 demo-grid reveal">
+      <div class="gitem"><span class="ico">01</span><h3>Agent 能力层</h3><p>Coze 知识库 + Prompt + 风险机制</p></div>
+      <div class="gitem"><span class="ico">02</span><h3>交互层</h3><p>独立前端界面 + 用户对话入口</p></div>
+      <div class="gitem"><span class="ico">03</span><h3>最终形态</h3><p>让用户无需进入 Coze，即可直接在业务页面中进行咨询</p></div>
+    </div>
+
+    <p class="demo-think reveal">Agent 不只是一个能回答问题的模型，<br>真正落地还需要考虑用户在哪里使用，以及如何进入下一步业务流程。</p>
+  </section>
+
+  <section class="sec" id="conversion">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">09</span><span class="sec-label">Business Conversion</span></div>
+      <h2 class="sec-title">业务转化：目标不是回答问题，而是完成预约</h2>
+      <p class="sec-desc">如果 Agent 只是把问题答完就结束，它的价值只停留在客服层面。真正有意义的是：让一次咨询不止停留在回答问题，而是继续走向需求识别 → 科室匹配 → 预约。</p>
+    </div>
+
+    <div class="conversion-flow reveal">
+      <div class="conv-step"><span class="num">01</span><b>患者咨询</b><span>口语化提问，需求可能模糊</span></div>
+      <div class="conv-step"><span class="num">02</span><b>需求识别</b><span>分类为预约 / 价格 / 挂号 / 流程</span></div>
+      <div class="conv-step"><span class="num">03</span><b>科室医生匹配</b><span>跨表检索，推荐对应科室与医生</span></div>
+      <div class="conv-step"><span class="num">04</span><b>预约引导</b><span>提供挂号方式与出诊时间</span></div>
+      <div class="conv-step"><span class="num">05</span><b>到院就诊</b><span>完成咨询到预约的业务闭环</span></div>
+    </div>
+    <div class="flow-note reveal">说明：这是设计中的目标业务流程，不代表实际转化数据，未填写任何转化率</div>
+
+    <div class="grid-3 reveal" style="margin-top:40px">
+      <div class="gitem"><span class="ico">设计 01</span><h3>把高价值信息放进知识库</h3><p>挂号方式、出诊时间等直接决定患者能否完成预约的信息，是知识库的重点字段。</p></div>
+      <div class="gitem"><span class="ico">设计 02</span><h3>敏感问题转线下</h3><p>价格类咨询不线上报价，统一引导患者到院初诊，而不是让咨询停在聊天。</p></div>
+      <div class="gitem"><span class="ico">设计 03</span><h3>为预约系统对接留口</h3><p>未来可一键跳转 H5 或预约链接，把引导动作升级为直接完成挂号。</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="future">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">10</span><span class="sec-label">Future Implementation</span></div>
+      <h2 class="sec-title">落地思考：MVP 验证了什么，正式上线要什么</h2>
+      <p class="sec-desc">MVP 阶段验证了方案可行，但真正上线还需要考虑系统对接、数据维护与运营成本。这一节是我对落地的完整思考。</p>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="gitem"><span class="ico">结论 01</span><h3>技术可行性</h3><p>低代码平台可以承担医疗咨询场景，无需从零开发系统。</p></div>
+      <div class="gitem"><span class="ico">结论 02</span><h3>需求匹配度</h3><p>部分常见咨询具备标准化回答的可能，与前期问题梳理结果一致。</p></div>
+      <div class="gitem"><span class="ico">结论 03</span><h3>效果验证</h3><p>原型测试覆盖四类场景，验证了方案的可行性。</p></div>
+    </div>
+
+    <div class="sub-block reveal">
+      <div class="sub-head"><span class="sub-idx">10.1</span><h2 class="sub-title">未来优化方向</h2></div>
+      <div class="grid-3">
+        <div class="gitem"><span class="ico">方向 01</span><h3>预约系统对接</h3><p>一键跳转 H5 或预约链接，把咨询直接转化为挂号动作。</p></div>
+        <div class="gitem"><span class="ico">方向 02</span><h3>出诊时间数字化</h3><p>把图片形式的出诊信息转成结构化表格，随排班动态更新。</p></div>
+        <div class="gitem"><span class="ico">方向 03</span><h3>全院信息完善</h3><p>按科室、职称、擅长、出诊时间、楼层电话补全医生图鉴。</p></div>
+      </div>
+    </div>
+
+    <div class="sub-block reveal">
+      <div class="sub-head"><span class="sub-idx">10.2</span><h2 class="sub-title">正式落地路径</h2></div>
+      <div class="path-cards">
+        <div class="path">
+          <span class="p-tag">方案 A · 深度可控</span>
+          <h3>系统深度对接</h3>
+          <p>与医院现有系统进行 API / 数据接口对接，适合长期运营，但需要 IT 与业务部门共同参与。</p>
+        </div>
+        <div class="path">
+          <span class="p-tag">方案 B · 快速上线</span>
+          <h3>第三方平台接入</h3>
+          <p>使用成熟客服 / Agent 平台快速验证，降低初期开发成本。</p>
+        </div>
+        <div class="path">
+          <span class="p-tag">方案 C · 过渡期</span>
+          <h3>人工辅助</h3>
+          <p>AI 处理标准问题，复杂问题转人工，边运行边积累真实数据。</p>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step"><span class="s-no">阶段一</span><b>MVP 验证</b><span>验证技术可行性与需求匹配度</span></div>
+        <div class="step"><span class="s-no">阶段二</span><b>人工辅助</b><span>积累真实问答数据，持续优化</span></div>
+        <div class="step"><span class="s-no">阶段三</span><b>展示价值</b><span>用数据争取预算与决策支持</span></div>
+        <div class="step"><span class="s-no">阶段四</span><b>正式上线</b><span>对接系统，进入常态化运营</span></div>
+      </div>
+    </div>
+
+    <div class="sub-block reveal">
+      <div class="sub-head"><span class="sub-idx">10.3</span><h2 class="sub-title">沉淀的方法论</h2></div>
+      <div class="methods">
+        <div class="method">
+          <span class="m-no">01</span>
+          <div><h3>知识库结构化</h3><p>原始资料清洗重组为关系表，口语化映射支撑患者口语问答。</p></div>
+        </div>
+        <div class="method">
+          <span class="m-no">02</span>
+          <div><h3>提示词模块化</h3><p>角色定位、核心禁令、回答模板、固定结尾四模块组合生效，降低维护复杂度。</p></div>
+        </div>
+        <div class="method">
+          <span class="m-no">03</span>
+          <div><h3>风险拦截机制设计</h3><p>组合风险拦截 + 绝对禁区拦截；风险识别 → 拦截 → 转人工的思路，也可以作为其他高风险业务场景设计时的参考。</p></div>
+        </div>
+        <div class="method">
+          <span class="m-no">04</span>
+          <div><h3>流程文档化</h3><p>操作手册 + 测试用例清单与验收标准，新人也能独立维护，效果可复现。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="practice">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="sec-no">11</span><span class="sec-label">Other AI Practice</span></div>
+      <h2 class="sec-title">其他 AI 实践</h2>
+      <p class="sec-desc">用 AI 解决效率问题的思路，同样应用在这些场景里。</p>
+    </div>
+    <div class="practice-grid reveal">
+      <div class="practice">
+        <span class="p-no">01</span>
+        <h3>Obsidian AI 自动分类</h3>
+        <p>用 Codex 搭建自动分类脚本，覆盖 10+ 内容场景，归档耗时从 2 分钟降至 10 秒。</p>
+      </div>
+      <div class="practice">
+        <span class="p-no">02</span>
+        <h3>AI 视觉内容制作</h3>
+        <p>用即梦 AI 重构 3D 裸眼大屏制作流程，缩短制作周期，降低外包依赖。</p>
+      </div>
+      <div class="practice">
+        <span class="p-no">03</span>
+        <h3>VR 全景导览</h3>
+        <p>独立完成 12+ 科室 VR 交互导览的设计与落地，上线后访问量 700+。</p>
+      </div>
+      <div class="practice">
+        <span class="p-no">04</span>
+        <h3>短视频流程梳理</h3>
+        <p>梳理制作全流程断点并搭建 SOP，推动团队按标准执行。</p>
+      </div>
+    </div>
+    <div class="data-src reveal">数据说明：以上数据来自个人项目与实习记录</div>
+  </section>
+
+  <section class="final">
+    <div class="identity reveal">AI应用实践者 · 非技术背景</div>
+    <h2 class="reveal">不是我会什么工具<br><span class="thin">而是我能用 AI 解决什么问题</span></h2>
+    <div class="cta-row reveal">
+      <a class="btn btn-white" href="#about">查看关于我<span class="arr">→</span></a>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="about-head reveal">
+      <span class="sec-no">关于我</span>
+      <h2>AI应用实践者</h2>
+    </div>
+    <div class="about-grid reveal">
+      <div class="about-cell">
+        <h3>我如何工作</h3>
+        <ul>
+          <li>从真实业务问题出发，用数据确认痛点</li>
+          <li>独立完成本项目的方案设计、Agent 搭建与测试迭代。</li>
+          <li>针对医疗场景设计高风险问题拦截与转人工机制。</li>
+          <li>通过测试用例验证 Agent 输出，并留存测试结果。</li>
+          <li>持续沉淀 AI 应用方法论</li>
+        </ul>
+      </div>
+      <div class="about-cell">
+        <h3>基础信息</h3>
+        <div class="contact-line"><b>教育背景</b><span>南宁理工学院 · 网络与新媒体 · 2022.9-2026.6</span></div>
+        <div class="contact-line"><b>荣誉奖项</b><span>优秀学生奖学金三等奖 · 三好学生</span></div>
+        <div class="contact-line"><b>技能证书</b><span>CET-4 · 墨刀原型 · Excel 数据</span></div>
+        <div class="contact-line"><b>联系方式</b><span><a href="mailto:suxuan_27@163.com" style="color:var(--text)">suxuan_27@163.com</a></span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <div class="foot-brand">AI应用实践作品集</div>
+    <div class="foot-line">问题发现 → 用户分析 → 知识库 → Agent → 测试 → 业务转化 → 落地 · 2026</div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <div>
+    <img id="lbImg" src="" alt="图片预览">
+    <div class="lb-cap" id="lbCap"></div>
+  </div>
+</div>
+
+<script>
+const lightbox=document.getElementById('lightbox');
+const lbImg=document.getElementById('lbImg');
+const lbCap=document.getElementById('lbCap');
+document.querySelectorAll('.shot img,.case-shot img').forEach(img=>{
+  img.addEventListener('click',()=>{
+    lbImg.src=img.src;
+    const fig=img.closest('figure')||img.closest('.case');
+    const cap=fig?fig.querySelector('.shot-cap b,.case-tag'):null;
+    lbCap.textContent=cap?cap.textContent.trim():'';
+    lightbox.classList.add('open');
+  });
+});
+lightbox.addEventListener('click',()=>lightbox.classList.remove('open'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')lightbox.classList.remove('open');});
+
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      en.target.classList.add('visible');
+      en.target.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.w;});
+      io.unobserve(en.target);
+    }
+  });
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+const links=document.querySelectorAll('.nav-links a');
+const sections=document.querySelectorAll('section[id]');
+const navIO=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+en.target.id));
+    }
+  });
+},{rootMargin:'-40% 0px -55% 0px'});
+sections.forEach(s=>navIO.observe(s));
+</script>
+</body>
+</html>
